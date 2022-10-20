@@ -1,0 +1,175 @@
+#! /usr/bin/env bash
+
+set -e
+
+runtime_env_src="$PROJECT_DIR/etc/mw_data_api.env.source"
+python_env=$(which python)
+
+if [ -e "$runtime_env_src" ]; then
+    source "$runtime_env_src"
+fi
+
+if [ -z "$FLASK_DEV_HOST" ]; then
+   FLASK_DEV_HOST='0.0.0.0'
+fi
+
+if [ -z "$FLASK_DEV_PORT" ]; then
+   FLASK_DEV_PORT=5000
+fi
+
+if [ -z "$API_GUNICORN_HOST" ]; then
+   echo "Error: Expected environment variable API_GUNICORN_HOST not defined."
+   exit 1
+fi
+
+if [ -z "$API_GUNICORN_PORT" ]; then
+   echo "Error: Expected environment variable API_GUNICORN_PORT not defined."
+   exit 1
+fi
+
+if [ -z "$API_GUNICORN_WORKERS" ]; then
+   echo "Error: Expected environment variable API_GUNICORN_WORKERS not defined."
+   exit 1
+fi
+
+if [ -z "$API_GUNICORN_LOG_FILE" ]; then
+   echo "Error: Expected environment variable API_GUNICORN_LOG_FILE not defined."
+   exit 1
+fi
+
+if [ -z "$API_GUNICORN_LOG_LEVEL" ]; then
+   API_GUNICORN_LOG_LEVEL=info
+fi
+
+if [ -z "$API_GUNICORN_TIMEOUT" ]; then
+   API_GUNICORN_TIMEOUT=60
+fi
+
+if [ -z "$API_HISTORICAL_DAYS_LOOKBACK" ]; then
+   export API_HISTORICAL_DAYS_LOOKBACK=61
+fi
+
+if [ -z "$AWS_ACCESS_KEY_ID" ]; then
+   echo "Error: Expected environment variable AWS_ACCESS_KEY_ID not defined."
+   exit 1
+fi
+
+if [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+   echo "Error: Expected environment variable AWS_SECRET_ACCESS_KEY not defined."
+   exit 1
+fi
+
+if [ -z "$AWS_REGION_NAME" ]; then
+   echo "Error: Expected environment variable AWS_REGION_NAME not defined."
+   exit 1
+fi
+
+if [ -z "$AWS_ATHENA_SCHEMA" ]; then
+   export AWS_ATHENA_SCHEMA=default
+fi
+
+if [ -z "$AWS_ATHENA_DATABASE_NAME" ]; then
+   echo "Error: Expected environment variable AWS_ATHENA_DATABASE_NAME not defined."
+   exit 1
+fi
+
+if [ -z "$AWS_ATHENA_MAX_WORKERS" ]; then
+   export AWS_ATHENA_SCHEMA=1
+fi
+
+if [ -z "$AWS_ATHENA_POLL_INTERVAL" ]; then
+   export AWS_ATHENA_POLL_INTERVAL=1
+fi
+
+if [ -z "$AWS_ATHENA_S3_RESULT_DIR" ]; then
+   echo "Error: Expected environment variable AWS_ATHENA_S3_RESULT_DIR not defined."
+   exit 1
+fi
+
+if [ -z "$AWS_REDSHIFT_HOST" ]; then
+   echo "Error: Expected environment variable AWS_REDSHIFT_HOST not defined."
+   exit 1
+fi
+
+if [ -z "$AWS_REDSHIFT_PORT" ]; then
+   echo "Error: Expected environment variable AWS_REDSHIFT_PORT not defined."
+   exit 1
+fi
+
+if [ -z "$AWS_REDSHIFT_USER" ]; then
+   echo "Error: Expected environment variable AWS_REDSHIFT_USER not defined."
+   exit 1
+fi
+
+if [ -z "$AWS_REDSHIFT_PASS" ]; then
+   echo "Error: Expected environment variable AWS_REDSHIFT_PASS not defined."
+   exit 1
+fi
+
+if [ -z "$AWS_REDSHIFT_SCHEMA" ]; then
+   echo "Error: Expected environment variable AWS_REDSHIFT_SCHEMA not defined."
+   exit 1
+fi
+
+if [ -z "$AWS_REDSHIFT_DATABASE_NAME" ]; then
+   echo "Error: Expected environment variable AWS_REDSHIFT_DATABASE_NAME not defined."
+   exit 1
+fi
+
+if [ -z "$AWS_REDSHIFT_MIN_CONNECTIONS" ]; then
+   export AWS_REDSHIFT_MIN_CONNECTIONS=1
+fi
+
+if [ -z "$AWS_REDSHIFT_MAX_CONNECTIONS" ]; then
+   export AWS_REDSHIFT_MAX_CONNECTIONS=$(echo $API_GUNICORN_WORKERS^2+1 | bc)
+fi
+
+if [ -z "$MW_SPATIAL_API_HOST" ]; then
+   echo "Error: Expected environment variable MW_SPATIAL_API_HOST not defined."
+   exit 1
+fi
+
+if [ -z "$MW_SPATIAL_API_PORT" ]; then
+   export MW_SPATIAL_API_PORT=80
+fi
+
+if [ -z "$MW_SPATIAL_API_ADMINISTRATIVE_DIVISION_ENDPOINT" ]; then
+   echo "Error: Expected environment variable MW_SPATIAL_API_ADMINISTRATIVE_DIVISION_ENDPOINT not defined."
+   exit 1
+fi
+
+if [ -z "$REDIS_HOST" ]; then
+   export MQ_HOST=127.0.0.1
+fi
+
+if [ -z "$REDIS_PORT" ]; then
+   export MQ_PORT=6379
+fi
+
+if [ -z "$REDIS_PASSWORD" ]; then
+   echo "Error: Expected environment variable REDIS_PASSWORD not defined."
+   exit 1
+fi
+
+if [ -z "$REDIS_DATABASE_INDEX" ]; then
+   echo "Error: Expected environment variable REDIS_DATABASE_INDEX not defined."
+   exit 1
+fi
+
+if [ -z "$LOGGER_HOST" ]; then
+   export LOGGER_HOST=127.0.0.1
+fi
+
+if [ -z "$LOGGER_PORT" ]; then
+   export LOGGER_PORT=24224
+fi
+
+exec gunicorn api.wsgi:aioapp \
+     --bind $API_GUNICORN_HOST:$API_GUNICORN_PORT \
+     --worker-class aiohttp.worker.GunicornWebWorker \
+     --workers $API_GUNICORN_WORKERS \
+     --log-file $API_GUNICORN_LOG_FILE \
+     --access-logfile $API_GUNICORN_LOG_FILE \
+     --error-logfile $API_GUNICORN_LOG_FILE \
+     --log-level $API_GUNICORN_LOG_LEVEL \
+     --timeout $API_GUNICORN_TIMEOUT
