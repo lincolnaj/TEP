@@ -82,8 +82,8 @@ def get_quiz_type():
     
     return resp
 @app.route('/get-type/id')
-@cross_origin(id)      
-def get_quiz_type():
+@cross_origin()      
+def get_quiz_type_id(id):
     quiz= mongo.db.question_answer.find({'id':int(id)})
     resp=dumps(quiz)
     
@@ -163,7 +163,7 @@ def get_creds(name):
 @app.route('/get-mockQuiz/<id>')
 @cross_origin()
 def get_mockQuiz(id):
-    quiz= mongo.db.login..find({"_id" : ObjectId(id)}))
+    quiz= mongo.db.mockQuiz.find({"_id" : ObjectId(id)}))
     resp=dumps(quiz)
     
     
