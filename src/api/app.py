@@ -91,6 +91,34 @@ def get_leader():
     
     
     return resp
+@app.route('/add-mockQuiz',methods=['POST'])      
+def add_mock_quiz():
+    _json= request.json
+    _id=_json['quizID']
+    _quizId=_json['description']
+    _quiz=_json['questions']
+    ids= mongo.db.mockQuiz.insert_one({'quizID':_id,'description':_quizId,'questions':_quiz})
+    resp=jsonify("mock quiz added")
+    resp.status_code=200
+    return resp
+
+@app.route('/add-cred',methods=['POST'])      
+def add_creds():
+    _json= request.json
+    _name=_json['name']
+    _pwd=_json['password']
+    ids= mongo.db.login.insert_one({'name':_name,'password':_pwd})
+    resp=jsonify("Creds added")
+    resp.status_code=200
+    return resp
+
+@app.route('/get-creds/<name>')
+def get_creds(name):
+    quiz= mongo.db.login.find({'name':name})
+    resp=dumps(quiz)
+    
+    
+    return resp
 
 @app.errorhandler(404)
 def not_found(error=None):
