@@ -6,9 +6,13 @@ from bson import ObjectId
 from flask import jsonify, request
 from werkzeug.security import generate_password_hash, check_password_hash
 from collections.abc import Mapping
+from flask_cors import CORS, cross_origin
 import pandas as pd
-app=Flask(__name__)
 
+app=Flask(__name__)
+cors = CORS(app)
+
+app.config['CORS_HEADERS'] = 'Content-Type'
 app.secret_key="secretkey"
 app.config['MONGO_URI']="mongodb+srv://tep-warehouse:Gk7ILMaUdqj9NDA5@tep.wjl8agn.mongodb.net/Quiz"
 
@@ -17,6 +21,7 @@ app.config['MONGO_URI']="mongodb+srv://tep-warehouse:Gk7ILMaUdqj9NDA5@tep.wjl8ag
 mongo= PyMongo(app)
 
 @app.route('/add',methods=['POST'])
+@cross_origin()
 def add_quiz():
     _json= request.json
     _easy=_json['EASY']
@@ -30,6 +35,7 @@ def add_quiz():
     else:
         return not_found()
 @app.route('/get-quiz/<id>')
+@cross_origin()
 def get_quiz(id):
     quiz= list(mongo.db.question_answer.find({"_id" : ObjectId(id)}))
     resp=dumps(quiz)
@@ -37,6 +43,7 @@ def get_quiz(id):
     
     return resp
 @app.route('/get-quiz')
+@cross_origin()
 def get_quiz_all():
     quiz= list(mongo.db.question_answer.find({}))
     resp=dumps(quiz)
@@ -45,7 +52,8 @@ def get_quiz_all():
     return resp
 
 
-@app.route('/add-type',methods=['POST'])      
+@app.route('/add-type',methods=['POST'])
+@cross_origin()      
 def add_quiz_type():
     _json= request.json
     _id=_json['id']
@@ -61,7 +69,8 @@ def add_quiz_type():
         return not_found()
 
 
-@app.route('/add-leader',methods=['POST'])      
+@app.route('/add-leader',methods=['POST'])
+@cross_origin()      
 def add_quiz_leader():
     _json= request.json
     _id=_json['studentID']
@@ -73,6 +82,7 @@ def add_quiz_leader():
     return resp
 
 @app.route('/get-leader')
+@cross_origin()
 def get_leader():
     quiz= mongo.db.leaderboard.aggregate([
             {"$group": 
@@ -98,7 +108,8 @@ def get_leader():
     
     
     return resp
-@app.route('/add-mockQuiz',methods=['POST'])      
+@app.route('/add-mockQuiz',methods=['POST'])
+@cross_origin()      
 def add_mock_quiz():
     _json= request.json
     _id=_json['quizID']
@@ -109,7 +120,8 @@ def add_mock_quiz():
     resp.status_code=200
     return resp
 
-@app.route('/add-cred',methods=['POST'])      
+@app.route('/add-cred',methods=['POST'])
+@cross_origin()      
 def add_creds():
     _json= request.json
     _name=_json['name']
@@ -120,6 +132,7 @@ def add_creds():
     return resp
 
 @app.route('/get-creds/<name>')
+@cross_origin()
 def get_creds(name):
     quiz= mongo.db.login.find({'name':name})
     resp=dumps(quiz)
@@ -128,6 +141,7 @@ def get_creds(name):
     return resp
 
 @app.errorhandler(404)
+@cross_origin()
 def not_found(error=None):
     message ={'status':404, 'message': 'NOt found'+ request.url}
     resp =jsonify(message)
