@@ -113,7 +113,7 @@ def add_mock_quiz():
 @app.route('/get-mockQuiz/<id>')
 @cross_origin()
 def get_quiz(id):
-    quiz= list(mongo.db.mockQuiz.find({"id" :id}))
+    quiz= list(mongo.db.mockQuiz.find({"quizID" :id}))
     resp=dumps(quiz)
     
     
