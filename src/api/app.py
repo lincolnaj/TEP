@@ -25,37 +25,6 @@ app.config['MONGO_URI']="mongodb+srv://tep-warehouse:Gk7ILMaUdqj9NDA5@tep.wjl8ag
 
 mongo= PyMongo(app)
 
-@app.route('/add',methods=['POST'])
-@cross_origin()
-def add_quiz():
-    _json= request.json
-    _easy=_json['EASY']
-    _moderate=_json['MODERATE']
-    _difficult=_json['DIFFICULT']
-    if _easy and _moderate and _difficult and request.method =='POST':
-        ids= mongo.db.quiz.insert_one({'EASY':_easy,'MODERATE':_moderate,'DIFFICULT':_difficult})
-        resp=jsonify("Diffculty added")
-        resp.status_code=200
-        return resp
-    else:
-        return not_found()
-@app.route('/get-quiz/<id>')
-@cross_origin()
-def get_quiz(id):
-    quiz= list(mongo.db.question_answer.find({"_id" : ObjectId(id)}))
-    resp=dumps(quiz)
-    
-    
-    return resp
-@app.route('/get-quiz')
-@cross_origin()
-def get_quiz_all():
-    quiz= list(mongo.db.question_answer.find({}))
-    resp=dumps(quiz)
-    
-    
-    return resp
-
 
 @app.route('/add-type',methods=['POST'])
 @cross_origin()      
@@ -81,7 +50,7 @@ def get_quiz_type():
     
     
     return resp
-@app.route('/get-type/id')
+@app.route('/get-type/<id>')
 @cross_origin()      
 def get_quiz_type_id(id):
     quiz= mongo.db.question_answer.find({'id':int(id)})
@@ -133,11 +102,29 @@ def get_leader():
 def add_mock_quiz():
     _json= request.json
     _id=_json['quizID']
+    _title=_json['title']
     _quizId=_json['description']
     _quiz=_json['questions']
-    ids= mongo.db.mockQuiz.insert_one({'quizID':_id,'description':_quizId,'questions':_quiz})
+    ids= mongo.db.mockQuiz.insert_one({'quizID':_id,'title':_title, 'description':_quizId,'questions':_quiz})
     resp=jsonify("mock quiz added")
     resp.status_code=200
+    return resp
+
+@app.route('/get-mockQuiz/<id>')
+@cross_origin()
+def get_quiz(id):
+    quiz= list(mongo.db.mockQuiz.find({"id" :id}))
+    resp=dumps(quiz)
+    
+    
+    return resp
+@app.route('/get-mockQuiz')
+@cross_origin()
+def get_quiz_all():
+    quiz= list(mongo.db.mockQuiz.find({}))
+    resp=dumps(quiz)
+    
+    
     return resp
 
 @app.route('/add-cred',methods=['POST'])
