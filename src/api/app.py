@@ -31,7 +31,7 @@ def add_quiz():
         return not_found()
 @app.route('/get-quiz/<id>')
 def get_quiz(id):
-    quiz= list(mongo.db.question_answer.find({'id':id}))
+    quiz= list(mongo.db.question_answer.find({"_id" : ObjectId(id)}))
     resp=dumps(quiz)
     
     
@@ -50,10 +50,10 @@ def add_quiz_type():
     _json= request.json
     _id=_json['id']
     _text=_json['text']
-    _choices=_json['choices']
+    _choices=_json['answers']
     _solutions=_json['solutions']
     if _id and _text and _solutions and  _choices and request.method =='POST':
-        ids= mongo.db.question_answer.insert_one({'id':_id,'text':_text,'chocies':_choices,'solutions':_solutions})
+        ids= mongo.db.question_answer.insert_one({'id':_id,'text':_text,'answers':_choices,'solutions':_solutions})
         resp=jsonify("Diffculty added")
         resp.status_code=200
         return resp
