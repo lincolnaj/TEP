@@ -10,7 +10,12 @@ from flask_cors import CORS, cross_origin
 import pandas as pd
 
 app=Flask(__name__)
-cors = CORS(app)
+CORS(app)
+cors = CORS(app, resource={
+    r"/*":{
+        "origins":"*"
+    }
+})
 
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.secret_key="secretkey"
@@ -68,7 +73,22 @@ def add_quiz_type():
     else:
         return not_found()
 
-
+@app.route('/get-type')
+@cross_origin()      
+def get_quiz_type():
+    quiz= mongo.db.question_answer.find({})
+    resp=dumps(quiz)
+    
+    
+    return resp
+@app.route('/get-type/id')
+@cross_origin(id)      
+def get_quiz_type():
+    quiz= mongo.db.question_answer.find({'id':int(id)})
+    resp=dumps(quiz)
+    
+    
+    return resp
 @app.route('/add-leader',methods=['POST'])
 @cross_origin()      
 def add_quiz_leader():
