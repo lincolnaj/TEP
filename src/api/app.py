@@ -11,22 +11,22 @@ import pandas as pd
 
 app=Flask(__name__)
 CORS(app)
-cors = CORS(app, resource={
+cors = CORS(app, resource={ #CORS for enabling endpoints to be accessible to react and UI
     r"/*":{
         "origins":"*"
     }
 })
 
-app.config['CORS_HEADERS'] = 'Content-Type'
+app.config['CORS_HEADERS'] = 'Content-Type' #adding headers to the endpoint to be CORS accessible
 app.secret_key="secretkey"
-app.config['MONGO_URI']="mongodb+srv://tep-warehouse:Gk7ILMaUdqj9NDA5@tep.wjl8agn.mongodb.net/Quiz"
+app.config['MONGO_URI']="mongodb+srv://tep-warehouse:Gk7ILMaUdqj9NDA5@tep.wjl8agn.mongodb.net/Quiz" #adding the mongodb acess link
 
 
 
 mongo= PyMongo(app)
 
 
-@app.route('/add-type',methods=['POST'])
+@app.route('/add-type',methods=['POST']) #post query for adding questions to mongodb, the response comes from UI
 @cross_origin()      
 def add_quiz_type():
     _json= request.json
@@ -35,17 +35,17 @@ def add_quiz_type():
     _choices=_json['answers']
     _solutions=_json['solutions']
     if _id and _text and _solutions and  _choices and request.method =='POST':
-        ids= mongo.db.question_answer.insert_one({'id':_id,'text':_text,'answers':_choices,'solutions':_solutions})
+        ids= mongo.db.question_answer.insert_one({'id':_id,'text':_text,'answers':_choices,'solutions':_solutions}) #inserting the document to mongodb
         resp=jsonify("Diffculty added")
         resp.status_code=200
         return resp
     else:
         return not_found()
 
-@app.route('/get-type')
+@app.route('/get-type') # get the data from mongodb
 @cross_origin()      
 def get_quiz_type():
-    quiz= mongo.db.question_answer.find({})
+    quiz= mongo.db.question_answer.find({}) #mongo query to find the data for question
     resp=dumps(quiz)
     
     
@@ -53,12 +53,12 @@ def get_quiz_type():
 @app.route('/get-type/<id>')
 @cross_origin()      
 def get_quiz_type_id(id):
-    quiz= mongo.db.question_answer.find({'id':int(id)})
+    quiz= mongo.db.question_answer.find({'id':int(id)}) #query to find by id
     resp=dumps(quiz)
     
     
     return resp
-@app.route('/add-leader',methods=['POST'])
+@app.route('/add-leader',methods=['POST']) # adding leaderboard data to mongodb
 @cross_origin()      
 def add_quiz_leader():
     _json= request.json
@@ -73,7 +73,7 @@ def add_quiz_leader():
 @app.route('/get-leader')
 @cross_origin()
 def get_leader():
-    quiz= mongo.db.leaderboard.aggregate([
+    quiz= mongo.db.leaderboard.aggregate([ #query to get leaderboard info from mongdb
             {"$group": 
             {
 
@@ -97,7 +97,7 @@ def get_leader():
     
     
     return resp
-@app.route('/add-mockQuiz',methods=['POST'])
+@app.route('/add-mockQuiz',methods=['POST']) #function to add quiz to mongodb
 @cross_origin()      
 def add_mock_quiz():
     _json= request.json
@@ -113,7 +113,7 @@ def add_mock_quiz():
 @app.route('/get-mockQuiz/<id>')
 @cross_origin()
 def get_quiz(id):
-    quiz= list(mongo.db.mockQuiz.find({"quizID" :id}))
+    quiz= list(mongo.db.mockQuiz.find({"quizID" :id})) #get info by id
     resp=dumps(quiz)
     
     
@@ -127,7 +127,7 @@ def get_quiz_all():
     
     return resp
 
-@app.route('/add-cred',methods=['POST'])
+@app.route('/add-cred',methods=['POST']) # adding crendtials to mongodb for teacher and student
 @cross_origin()      
 def add_creds():
     _json= request.json
@@ -138,7 +138,7 @@ def add_creds():
     resp.status_code=200
     return resp
 
-@app.route('/get-creds/<name>')
+@app.route('/get-creds/<name>') #get creds by name
 @cross_origin()
 def get_creds(name):
     quiz= mongo.db.login.find({'name':name})
@@ -155,7 +155,7 @@ def get_mockQuiz(id):
     
     
     return resp
-@app.errorhandler(404)
+@app.errorhandler(404) #throwing error if any issue POST or Get query
 @cross_origin()
 def not_found(error=None):
     message ={'status':404, 'message': 'NOt found'+ request.url}
