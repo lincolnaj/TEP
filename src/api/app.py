@@ -31,7 +31,14 @@ def add_quiz():
         return not_found()
 @app.route('/get-quiz/<id>')
 def get_quiz(id):
-    quiz= list(mongo.db.question_answer.find({'id':int(id)}))
+    quiz= list(mongo.db.question_answer.find({'id':id}))
+    resp=dumps(quiz)
+    
+    
+    return resp
+@app.route('/get-quiz')
+def get_quiz_all():
+    quiz= list(mongo.db.question_answer.find({}))
     resp=dumps(quiz)
     
     
