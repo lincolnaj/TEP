@@ -140,6 +140,14 @@ def get_creds(name):
     
     return resp
 
+@app.route('/get-mockQuiz/<id>')
+@cross_origin()
+def get_mockQuiz(id):
+    quiz= mongo.db.login..find({"_id" : ObjectId(id)}))
+    resp=dumps(quiz)
+    
+    
+    return resp
 @app.errorhandler(404)
 @cross_origin()
 def not_found(error=None):
