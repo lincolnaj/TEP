@@ -163,7 +163,7 @@ def get_creds(name):
 @app.route('/get-mockQuiz/<id>')
 @cross_origin()
 def get_mockQuiz(id):
-    quiz= mongo.db.mockQuiz.find({"_id" : ObjectId(id)}))
+    quiz= mongo.db.mockQuiz.find({"_id" : ObjectId(id)})
     resp=dumps(quiz)
     
     
